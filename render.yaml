@@ -1,10 +1,9 @@
 services:
   - type: web
     name: wevlo-android-builder
-    env: node
-    plan: free
-    buildCommand: npm install
-    startCommand: npm start
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: NODE_VERSION
-        value: 18.17.0
+      - key: PORT
+        value: 3000
