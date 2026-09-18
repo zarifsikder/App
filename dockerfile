@@ -1,5 +1,5 @@
 # ============================================
-# Wevlo Android Builder - Docker Image
+# Wevlo Android Builder - Docker Image v2.1
 # ============================================
 FROM ubuntu:22.04
 
@@ -9,16 +9,22 @@ ENV ANDROID_HOME=/opt/android-sdk
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/34.0.0
 
-# প্রয়োজনীয় সফটওয়্যার ইনস্টল
+# প্রয়োজনীয় সফটওয়্যার + Java 17
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
     unzip \
     git \
     openjdk-17-jdk \
-    nodejs \
-    npm \
+    ca-certificates \
+    gnupg \
     && rm -rf /var/lib/apt/lists/*
+
+# ✅ Node.js 18.x ইনস্টল (এটি সবচেয়ে গুরুত্বপূর্ণ ফিক্স)
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    echo "Node version: $(node --version)" && \
+    echo "NPM version: $(npm --version)"
 
 # Android SDK Command Line Tools ডাউনলোড
 RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
@@ -28,7 +34,7 @@ RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
     mv cmdline-tools latest && \
     rm commandlinetools-linux-*.zip
 
-# Android SDK Licenses অ্যাকসেপ্ট + প্রয়োজনীয় প্যাকেজ ইনস্টল
+# Android SDK Licenses + প্যাকেজ
 RUN yes | sdkmanager --licenses > /dev/null 2>&1 || true
 RUN sdkmanager "platform-tools" \
     "platforms;android-34" \
@@ -42,7 +48,6 @@ RUN npm install --production
 
 COPY . .
 
-# ডিরেক্টরি তৈরি
 RUN mkdir -p /app/apks /app/tmp /app/templates
 
 EXPOSE 3000
