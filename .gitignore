@@ -1,4 +1,7 @@
-node_modules/
-tmp/
-apks/
-*.log
+node_modules
+npm-debug.log
+tmp
+apks
+.git
+.gitignore
+*.md
